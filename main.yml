@@ -1,6 +1,15 @@
 ---
 - hosts: "all"
-  remote_user: "pi"
+  remote_user: "roman"
   become: true
   become_user: "root"
   become_method: "sudo"
+  force_handlers: true
+  vars_files:
+    - "vars.yml"
+  handlers:
+    - import_tasks: "handlers/main.yml"
+
+  tasks:
+    - name: "connect to wifi"
+      include_tasks: "tasks/wifi.yml"
