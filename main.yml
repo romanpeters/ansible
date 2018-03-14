@@ -13,3 +13,12 @@
   tasks:
     - name: "connect to wifi"
       include_tasks: "tasks/wifi.yml"
+
+    - name: "update package manager"
+      include_tasks: "tasks/packagemanager.yml"
+
+    - name: "install packages"
+      include_tasks: "tasks/packages.yml"
+
+    - name: "configure firewall"
+      include_tasks: "tasks/firewall.yml"
