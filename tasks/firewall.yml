@@ -1,0 +1,28 @@
+---
+- name: "ensure ipv6 firewalling is enabled"
+  lineinfile:
+    dest: "/etc/default/ufw"
+    regexp: "^IPV6="
+    line: "IPV6=yes"
+    state: "present"
+
+- name: "allow incoming traffic on specified ports"
+  ufw:
+    rule: "allow"
+    to_port: "{{ item }}"
+  with_items:
+    - "ssh"
+    - "http"
+    - "https"
+
+- name: "allow outgoing traffic"
+  ufw:
+    policy: "allow"
+    direction: "outgoing"
+    state: "enabled"
+
+- name: "block all other incoming traffic"
+  ufw:
+    policy: "deny"
+    direction: "incoming"
+    state: "enabled"
