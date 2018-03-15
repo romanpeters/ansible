@@ -1,4 +1,11 @@
 ---
+- name: "install ufw"
+  package:
+    name: "{{ item }}"
+    state: "latest"
+  with_items:
+    - "ufw"
+
 - name: "ensure ipv6 firewalling is enabled"
   lineinfile:
     dest: "/etc/default/ufw"
