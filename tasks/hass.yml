@@ -1,0 +1,71 @@
+---
+- name: "create Home Assistant system group"
+  group:
+    name: "homeassistant"
+    state: present
+    system: True
+
+- name: "create Home Assistant system user"
+  user:
+    name: "homeassistant"
+    group: "homeassistant"
+    append: False
+    home: "/var/local/homeassistant"
+    comment: "Home Assistant"
+    shell: "/usr/sbin/nologin"
+    state: present
+    system: True
+
+- name: "clone Home Assistant git repository"
+  git:
+    repo: "https://github.com/home-assistant/home-assistant.git"
+    dest: "/var/local/homeassistant/home-assistant"
+    version: "master"
+    recursive: True
+    update: True
+  become: True
+  become_user: "homeassistant"
+  register: homeassistant_git
+
+- name: "install Home Assistant in virtualenv"
+  pip:
+    name: '.'
+    chdir: "/var/local/homeassistant/home-assistant"
+    extra_args: '--upgrade'
+    virtualenv: "/var/local/homeassistant/venv"
+    virtualenv_python: 'python3'
+  become: True
+  become_user: "homeassistant"
+  when: homeassistant_git|changed
+
+- name: "ensure Home Assistant config dir exists"
+  file:
+    path: '/var/local/homeassistant/.homeassistant'
+    mode: '0750'
+    state: 'directory'
+  become: True
+  become_user: "homeassistant"
+
+- name: "clone Home Assistant config"
+  git:
+    repo: "{{ github_hass_config }}"
+    dest: "/var/local/homeassistant/.homeassistant"
+
+- name: "Configure systemd unit file"
+  template:
+    src: 'templates{{ item }}.j2'
+    dest: '{{ item }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  with_items:
+    - "/etc/systemd/system/home-assistant.service"
+  register: homeassistant_systemd
+
+- name: "Set Home Assistant state using systemd"
+  systemd:
+    name: 'home-assistant'
+    state: started
+    enabled: True
+    masked: False
+    daemon_reload: '{{ homeassistant_systemd|changed }}'

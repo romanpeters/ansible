@@ -14,10 +14,10 @@
     - name: "configure system"
       include_tasks: "tasks/system.yml"
 
-    - name: "connect to wifi"
+    - name: "configure wifi"
       include_tasks: "tasks/wifi.yml"
 
-    - name: "configure ssh"
+    - name: "configure SSH"
       include_tasks: "tasks/ssh.yml"
 
     - name: "update package manager"
@@ -29,7 +29,7 @@
     - name: "configure firewall"
       include_tasks: "tasks/firewall.yml"
 
-    - name: "install python from source"
+    - name: "install Python from source"
       vars:
         - py_version: "3.6.4"
       include_tasks: "tasks/python.yml"
@@ -38,4 +38,7 @@
       vars:
         - netatalk_version: "3.1.11"
       include_tasks: "tasks/afp.yml"
+
+    - name: "install Home Assistant"
+      include_tasks: "tasks/hass.yml"
 
