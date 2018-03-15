@@ -42,3 +42,6 @@
     - name: "install Home Assistant"
       include_tasks: "tasks/hass.yml"
 
+    - name: "replace default user"
+      include_tasks: "tasks/user.yml"
+
