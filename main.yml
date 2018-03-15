@@ -11,6 +11,9 @@
     - import_tasks: "handlers/main.yml"
 
   tasks:
+    - name: "configure locales"
+      include_tasks: "tasks/locale.yml"
+
     - name: "connect to wifi"
       include_tasks: "tasks/wifi.yml"
 
