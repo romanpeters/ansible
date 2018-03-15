@@ -1,4 +1,11 @@
 ---
+- name: "install packages"
+  package:
+    name: "{{ item }}"
+    state: "latest"
+  with_items:
+    - "python3-pip"
+
 - set_fact:
     py_version_short: "{{ '.'.join(py_version.split('.', 2)[:2]) }}"
     py_download_pkg_name: "Python-{{ py_version }}"
@@ -23,7 +30,7 @@
     dest: "{{ py_src_pkg_path }}"
   when: command_result.rc != 0
 
-- name: "untar the source package"
+- name: "unpack the source package"
   unarchive:
     src: "{{ py_src_pkg_path }}"
     dest: "{{ py_download_dir }}"

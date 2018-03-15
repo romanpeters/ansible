@@ -1,7 +1,7 @@
 ---
 - name: "copy wpa_supplicant.conf"
   template:
-    src: "templates{{ item }}"
+    src: "templates{{ item }}.j2"
     dest: "{{ item }}"
   with_items:
     - "/etc/wpa_supplicant/wpa_supplicant.conf"
