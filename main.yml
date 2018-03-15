@@ -11,8 +11,8 @@
     - import_tasks: "handlers/main.yml"
 
   tasks:
-    - name: "configure locales"
-      include_tasks: "tasks/locale.yml"
+    - name: "configure system"
+      include_tasks: "tasks/system.yml"
 
     - name: "connect to wifi"
       include_tasks: "tasks/wifi.yml"
@@ -33,3 +33,9 @@
       vars:
         - py_version: "3.6.4"
       include_tasks: "tasks/python.yml"
+
+    - name: "configure afp"
+      vars:
+        - netatalk_version: "3.1.11"
+      include_tasks: "tasks/afp.yml"
+

@@ -1,0 +1,91 @@
+---
+- name: "install dependencies"
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "checkinstall"
+    - "build-essential"
+    - "libevent-dev"
+    - "libssl-dev"
+    - "libgcrypt-dev"
+    - "libkrb5-dev"
+    - "libpam0g-dev"
+    - "libwrap0-dev"
+    - "libdb-dev"
+    - "libtdb-dev"
+    - "libmariadbclient-dev"
+    - "avahi-daemon"
+    - "libavahi-client-dev"
+    - "libacl1-dev"
+    - "libldap2-dev"
+    - "libcrack2-dev"
+    - "systemtap-sdt-dev"
+    - "libdbus-1-dev"
+    - "libdbus-glib-1-dev"
+    - "libglib2.0-dev"
+    - "libio-socket-inet6-perl"
+    - "tracker"
+    - "libtracker-sparql-1.0-dev"
+    - "libtracker-miner-1.0-dev"
+
+- name: "check if installed"
+  command: "netatalk -v"
+  register: command_result
+  ignore_errors: yes
+
+- mame: "create version variable"
+  set_fact:
+    netatalk_installed_version: None
+
+- name: "set version variable"
+  set_fact:
+    netatalk_installed_version: command_result.split()[1]
+  when: command_result.rc == 0
+
+- name: "download source code"
+  get_url:
+    url: "http://prdownloads.sourceforge.net/netatalk/netatalk-{{ netatalk_version }}.tar.gz?download"
+    dest: "/usr/src/netatalk-{{ netatalk_version }}.tar.gz"
+  when: netatalk_installed_version != netatalk_version
+
+- name: "unpack the source code"
+  unarchive:
+    src: "/usr/src/netatalk-{{ netatalk_version }}.tar.gz"
+    dest: "/usr/src"
+    remote_src: yes
+  when: netatalk_installed_version != netatalk_version
+
+
+- name: "run configure"
+  shell: "cd /usr/src/netatalk-{{ netatalk_version }} && ./configure --with-init-style=debian-systemd --without-libevent --without-tdb --with-cracklib --enable-krbV-uam --with-pam-confdir=/etc/pam.d --with-dbus-daemon=/usr/bin/dbus-daemon --with-dbus-sysconf-dir=/etc/dbus-1/system.d --with-tracker-pkgconfig-version=1.0"
+  when: netatalk_installed_version != netatalk_version
+
+- name: "run make"
+  shell: "cd /usr/src/netatalk-{{ netatalk_version }} && make"
+  when: netatalk_installed_version != netatalk_version
+
+- name: "run install"
+  shell: "cd /usr/src/netatalk-{{ netatalk_version }} && checkinstall --pkgname=netatalk --default"
+  when: netatalk_installed_version != netatalk_version
+
+- name: "ensure /usr/local/etc/ exists"
+  file:
+    state: directory
+    path: /usr/local/etc/
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "copy afp.conf"
+  template:
+    src: "templates{{ item }}"
+    dest: "{{ item }}"
+    mode: 0644
+  with_items:
+    - "/usr/local/etc/afp.conf"
+
+- name: "enable netatalk on boot"
+  service:
+    name: netatalk
+    enabled: yes
