@@ -1,0 +1,59 @@
+---
+- set_fact:
+    py_version_short: "{{ '.'.join(py_version.split('.', 2)[:2]) }}"
+    py_download_pkg_name: "Python-{{ py_version }}"
+
+- set_fact:
+    py_download_url: "https://www.python.org/ftp/python/{{ py_version }}/{{ py_download_pkg_name }}.tgz"
+    py_exec: "python{{ py_version_short }}"
+    py_download_dir: "/tmp"
+
+- set_fact:
+    py_src_dir_path: "{{ py_download_dir }}/{{ py_download_pkg_name }}"
+    py_src_pkg_path: "{{ py_download_dir }}/{{ py_download_pkg_name }}.tgz"
+
+- name: "check if python version installed"
+  command: "which {{ py_exec }}"
+  register: command_result
+  ignore_errors: yes
+
+- name: "download the tar ball"
+  get_url:
+    url: "{{ py_download_url }}"
+    dest: "{{ py_src_pkg_path }}"
+  when: command_result.rc != 0
+
+- name: "untar the source package"
+  unarchive:
+    src: "{{ py_src_pkg_path }}"
+    dest: "{{ py_download_dir }}"
+    creates: "{{ py_src_dir_path }}"
+    copy: no
+  when: command_result.rc != 0
+
+- name: "run configure"
+  command: "./configure"
+  args:
+    chdir: "{{ py_src_dir_path }}"
+  when: command_result.rc != 0
+
+- name: "run make"
+  command: "make"
+  args:
+    chdir: "{{ py_src_dir_path }}"
+  when: command_result.rc != 0
+
+- name: "run make altinstall"
+  command: "make altinstall"
+  args:
+    chdir: "{{ py_src_dir_path }}"
+  sudo: yes
+  when: command_result.rc != 0
+
+- name: "clean up the source files"
+  file:
+    state: absent
+  with_items:
+    - "{{ py_src_pkg_path }}"
+    - "{{ py_src_dir_path }}"
+  when: command_result.rc != 0

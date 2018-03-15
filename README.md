@@ -1,4 +1,4 @@
 # ansible
 Ansible configuration files used for my Raspberry Pi
 
-`$ sh start.sh`
+`$ ansible-playbook main.yml -i hosts --ask-pass`
