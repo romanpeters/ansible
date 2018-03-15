@@ -1,6 +1,6 @@
 ---
 - hosts: "all"
-  remote_user: "roman"
+  remote_user: "pi"
   become: true
   become_user: "root"
   become_method: "sudo"

@@ -5,6 +5,7 @@
     state: "latest"
   with_items:
     - "python3-pip"
+    - "python3-venv"
 
 - set_fact:
     py_version_short: "{{ '.'.join(py_version.split('.', 2)[:2]) }}"
