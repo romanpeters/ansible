@@ -35,32 +35,32 @@
   get_url:
     url: "https://www.python.org/ftp/python/{{ py_version }}/Python-{{ py_version }}.tgz"
     dest: "/tmp/Python-{{ py_version }}.tgz"
-  #when: command_result.rc != 0
+  when: command_result.rc != 0
 
 - name: "unpack the source package"
   unarchive:
     src: "/tmp/Python-{{ py_version }}.tgz"
     dest: "/tmp/"
     copy: no
-  #when: command_result.rc != 0
+  when: command_result.rc != 0
 
 - name: "run configure"
   command: "./configure"
   args:
     chdir: "/tmp/Python-{{ py_version }}"
-  #when: command_result.rc != 0
+  when: command_result.rc != 0
 
 - name: "run make"
   command: "make"
   args:
     chdir: "/tmp/Python-{{ py_version }}"
-  #when: command_result.rc != 0
+  when: command_result.rc != 0
 
 - name: "run make install"
   command: "make install"
   args:
     chdir: "/tmp/Python-{{ py_version }}"
-  #when: command_result.rc != 0
+  when: command_result.rc != 0
 
 - name: "clean up the source files"
   file:
