@@ -1,16 +1,35 @@
 ---
-- name: "create user"
+- name: "Make sure we have a 'wheel' group"
+  group:
+    name: wheel
+    state: present
+
+- name: "Allow 'wheel' group to have passwordless sudo"
+  lineinfile:
+    dest: "/etc/sudoers"
+    state: present
+    regexp: '^%wheel'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+
+- name: "Add new sudo user"
   user:
     name: "{{ new_username }}"
     comment: "{{ new_user_full_name }}"
     password: "{{ new_user_password }}"
+    skeleton: "/etc/skel/"
     generate_ssh_key: yes
-    groups: adm, dialout, cdrom, sudo, audio, video, plugdev, games, users, input, netdev, spi, i2c, gpio,
+    groups: wheel, adm, dialout, cdrom, sudo, audio, video, plugdev, games, users, input, netdev, spi, i2c, gpio,
     append: yes
+    state: present
+    createhome: yes
+
+#  chsh -s /bin/bash romanpeters
 
 
-#- name: "remove pi user"
-#- user:
-#    name: pi
-#    state: absent
-#    remove: yes
+- name: "set up authorized keys"
+  authorized_key:
+    user: "{{ new_username }}"
+    key: "{{ item }}"
+  with_file:
+    - "~/.ssh/id_rsa.pub"
