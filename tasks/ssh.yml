@@ -1,12 +1,4 @@
 ---
-- name: "install hostkey"
-  template:
-    src: "~/.ssh/id_rsa.pub"
-    dest: "/etc/ssh/ssh_known_hosts"
-    owner: "root"
-    group: "root"
-    mode: "0644"
-
 - name: "disable password login"
   copy:
     src: "templates{{ item }}"
