@@ -1,6 +1,13 @@
 ---
+remote_user: "pi"
 
-WIFI_SSID: "mywifinetwork"
-WIFI_PASSWORD: "mypassword"
+new_hostname: "computer"
+new_user_full_name: "John Doe"
+new_username: "johndoe"
+new_user_password: "password"
 
-github_hass_config: "https://github.com/romanpeters/home-assistant.git"
+wifi_ssid: "mywifinetwork"
+wifi_password: "mypassword"
+
+github_hass_config: "githubrepohassconfig
+github_token: "githubkey" # needs right to add SSH keys
