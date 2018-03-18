@@ -1,4 +1,7 @@
 ---
+- hostname:
+    name: "{{ new_hostname }}"
+
 - locale_gen:
     name: "{{ item }}"
     state: present
@@ -10,3 +13,4 @@
 - name: "set timezone"
   timezone:
     name: "Europe/Amsterdam"
+
