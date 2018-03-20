@@ -12,20 +12,20 @@
     line: '%wheel ALL=(ALL) NOPASSWD: ALL'
     validate: 'visudo -cf %s'
 
-- name: "Add new sudo user"
+- name: "add new sudo user"
   user:
     name: "{{ new_username }}"
     comment: "{{ new_user_full_name }}"
     password: "{{ new_user_password }}"
     skeleton: "/etc/skel/"
     generate_ssh_key: yes
-    groups: wheel, adm, dialout, cdrom, sudo, audio, video, plugdev, games, users, input, netdev, spi, i2c, gpio,
+    groups: wheel, adm, dialout, cdrom, sudo, audio, video, plugdev, games, users, input, netdev, spi, i2c, gpio, telegram
     append: yes
     state: present
     createhome: yes
 
-#  chsh -s /bin/bash romanpeters
-
+- name: "set bash shell for new user"
+  command: "chsh -s /bin/bash {{ new_username }}"
 
 - name: "set up authorized keys"
   authorized_key:
