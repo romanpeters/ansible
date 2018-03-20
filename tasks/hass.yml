@@ -50,6 +50,7 @@
   git:
     repo: "{{ github_hass_config }}"
     dest: "/var/local/homeassistant/.homeassistant"
+  when: github_hass_config
 
 - name: "Configure systemd unit file"
   template:
