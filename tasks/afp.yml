@@ -4,7 +4,6 @@
     name: "{{ item }}"
     state: present
   with_items:
-    - "checkinstall"
     - "build-essential"
     - "libevent-dev"
     - "libssl-dev"
@@ -46,33 +45,41 @@
 - name: "download source code"
   get_url:
     url: "http://prdownloads.sourceforge.net/netatalk/netatalk-{{ netatalk_version }}.tar.gz?download"
-    dest: "/usr/src/netatalk-{{ netatalk_version }}.tar.gz"
+    dest: "/tmp/netatalk-{{ netatalk_version }}.tar.gz"
   when: netatalk_installed_version != netatalk_version
 
 - name: "unpack the source code"
   unarchive:
-    src: "/usr/src/netatalk-{{ netatalk_version }}.tar.gz"
-    dest: "/usr/src"
+    src: "/tmp/netatalk-{{ netatalk_version }}.tar.gz"
+    dest: "/tmp"
     remote_src: yes
   when: netatalk_installed_version != netatalk_version
 
 
 - name: "run configure"
-  shell: "cd /usr/src/netatalk-{{ netatalk_version }} && ./configure --with-init-style=debian-systemd --without-libevent --without-tdb --with-cracklib --enable-krbV-uam --with-pam-confdir=/etc/pam.d --with-dbus-daemon=/usr/bin/dbus-daemon --with-dbus-sysconf-dir=/etc/dbus-1/system.d --with-tracker-pkgconfig-version=1.0"
+  shell: "cd /tmp/netatalk-{{ netatalk_version }} && ./configure --with-init-style=debian-systemd --without-libevent --without-tdb --with-cracklib --enable-krbV-uam --with-pam-confdir=/etc/pam.d --with-dbus-daemon=/usr/bin/dbus-daemon --with-dbus-sysconf-dir=/etc/dbus-1/system.d --with-tracker-pkgconfig-version=1.0"
   when: netatalk_installed_version != netatalk_version
 
 - name: "run make"
-  shell: "cd /usr/src/netatalk-{{ netatalk_version }} && make"
+  shell: "cd /tmp/netatalk-{{ netatalk_version }} && make"
   when: netatalk_installed_version != netatalk_version
 
 - name: "run install"
-  shell: "cd /usr/src/netatalk-{{ netatalk_version }} && checkinstall --pkgname=netatalk --default"
+  shell: "cd /tmp/netatalk-{{ netatalk_version }} && install"
   when: netatalk_installed_version != netatalk_version
+
+- name: "clean up the source files"
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/tmp/netatalk-{{ netatalk_version }}"
+    - "/tmp/netatalk-{{ netatalk_version }}.tar.gz"
 
 - name: "ensure /usr/local/etc/ exists"
   file:
     state: directory
-    path: /usr/local/etc/
+    path: "/usr/local/etc/"
     owner: root
     group: root
     mode: 0644
@@ -85,7 +92,12 @@
   with_items:
     - "/usr/local/etc/afp.conf"
 
-- name: "enable netatalk on boot"
+- name: "enable netatalk"
   service:
     name: netatalk
+    enabled: yes
+
+- name: "enable Avahi Service"
+  service:
+    name: avahi-daemon
     enabled: yes
