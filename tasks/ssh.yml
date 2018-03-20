@@ -1,5 +1,5 @@
 ---
-- name: "disable password login"
+- name: "disable password and root login"
   copy:
     src: "templates{{ item }}"
     dest: "{{ item }}"
