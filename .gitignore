@@ -1,3 +1,4 @@
 vars.yml
 *.retry
 *.log
+.idea/

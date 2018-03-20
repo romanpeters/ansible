@@ -1,27 +1,33 @@
 ---
 - hosts: "all"
-  remote_user: "roman"
+  vars_files:
+    - "vars.yml"
+  remote_user: "{{ remote_user }}"
   become: true
   become_user: "root"
   become_method: "sudo"
-  force_handlers: true
+
+  tasks:
+  - name: "add new user"
+    include_tasks: "tasks/useradd.yml"
+
+- hosts: "all"
   vars_files:
     - "vars.yml"
-  handlers:
-    - import_tasks: "handlers/main.yml"
+  remote_user: "{{ new_username }}"
+  become: true
+  become_user: "root"
+  become_method: "sudo"
 
   tasks:
     - name: "configure system"
       include_tasks: "tasks/system.yml"
 
-    - name: "connect to wifi"
+    - name: "configure wifi"
       include_tasks: "tasks/wifi.yml"
 
-    - name: "configure ssh"
+    - name: "configure SSH"
       include_tasks: "tasks/ssh.yml"
-
-    - name: "update package manager"
-      include_tasks: "tasks/packagemanager.yml"
 
     - name: "install packages"
       include_tasks: "tasks/packages.yml"
@@ -29,13 +35,36 @@
     - name: "configure firewall"
       include_tasks: "tasks/firewall.yml"
 
-    - name: "install python from source"
+    - name: "install git and authorize GitHub"
+      include_tasks: "tasks/git.yml"
+
+    - name: "install Python from source"
       vars:
         - py_version: "3.6.4"
       include_tasks: "tasks/python.yml"
 
-    - name: "configure afp"
+    - name: "install Telegram bots"
+      include_tasks: "tasks/telegram.yml"
+
+    - name: "install Telegram bots"
+      include_tasks: "tasks/telegram.yml"
+
+    - name: "configure AFP"
       vars:
         - netatalk_version: "3.1.11"
       include_tasks: "tasks/afp.yml"
+
+    - name: "install Home Assistant"
+      include_tasks: "tasks/hass.yml"
+
+#    - name: "configure webserver"
+#      vars:
+#        - dhparam_size: 4096
+#      include_tasks: "tasks/webserver.yml"
+
+    - name: "remove default user"
+      include_tasks: "tasks/userremove.yml"
+
+    - name: "add motd"
+      include_tasks: "tasks/motd.yml"
 

@@ -1,0 +1,35 @@
+---
+- name: "Make sure we have a 'wheel' group"
+  group:
+    name: wheel
+    state: present
+
+- name: "Allow 'wheel' group to have passwordless sudo"
+  lineinfile:
+    dest: "/etc/sudoers"
+    state: present
+    regexp: '^%wheel'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+
+- name: "add new sudo user"
+  user:
+    name: "{{ new_username }}"
+    comment: "{{ new_user_full_name }}"
+    password: "{{ new_user_password }}"
+    skeleton: "/etc/skel/"
+    generate_ssh_key: yes
+    groups: wheel, adm, dialout, cdrom, sudo, audio, video, plugdev, games, users, input, netdev, spi, i2c, gpio, telegram
+    append: yes
+    state: present
+    createhome: yes
+
+- name: "set bash shell for new user"
+  command: "chsh -s /bin/bash {{ new_username }}"
+
+- name: "set up authorized keys"
+  authorized_key:
+    user: "{{ new_username }}"
+    key: "{{ item }}"
+  with_file:
+    - "~/.ssh/id_rsa.pub"

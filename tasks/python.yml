@@ -1,16 +1,44 @@
 ---
+- name: "install Python packages and dependencies"
+  package:
+    name: "{{ item }}"
+    state: "latest"
+  with_items:
+    - "build-essential"
+    - "python3-pip"
+    - "virtualenv"
+    - "python3-dev"
+    - "python3-setuptools"
+    - "tk-dev"
+    - "libncurses5-dev"
+    - "libncursesw5-dev"
+    - "libreadline6-dev"
+    - "libdb5.3-dev"
+    - "libgdbm-dev"
+    - "libsqlite3-dev"
+    - "libssl-dev"
+    - "libffi-dev"
+    - "libbz2-dev"
+    - "libexpat1-dev"
+    - "liblzma-dev"
+    - "zlib1g-dev"
+    - "libtiff5-dev"
+    - "libjpeg8-dev"
+    - "zlib1g-dev"
+    - "libfreetype6-dev"
+    - "liblcms2-dev"
+    - "libwebp-dev"
+    - "tcl8.5-dev"
+    - "tk8.5-dev"
+    - "python-tk"
+
+
+
 - set_fact:
     py_version_short: "{{ '.'.join(py_version.split('.', 2)[:2]) }}"
-    py_download_pkg_name: "Python-{{ py_version }}"
 
 - set_fact:
-    py_download_url: "https://www.python.org/ftp/python/{{ py_version }}/{{ py_download_pkg_name }}.tgz"
     py_exec: "python{{ py_version_short }}"
-    py_download_dir: "/tmp"
-
-- set_fact:
-    py_src_dir_path: "{{ py_download_dir }}/{{ py_download_pkg_name }}"
-    py_src_pkg_path: "{{ py_download_dir }}/{{ py_download_pkg_name }}.tgz"
 
 - name: "check if python version installed"
   command: "which {{ py_exec }}"
@@ -19,41 +47,39 @@
 
 - name: "download the tar ball"
   get_url:
-    url: "{{ py_download_url }}"
-    dest: "{{ py_src_pkg_path }}"
+    url: "https://www.python.org/ftp/python/{{ py_version }}/Python-{{ py_version }}.tgz"
+    dest: "/tmp/Python-{{ py_version }}.tgz"
   when: command_result.rc != 0
 
-- name: "untar the source package"
+- name: "unpack the source package"
   unarchive:
-    src: "{{ py_src_pkg_path }}"
-    dest: "{{ py_download_dir }}"
-    creates: "{{ py_src_dir_path }}"
+    src: "/tmp/Python-{{ py_version }}.tgz"
+    dest: "/tmp/"
     copy: no
   when: command_result.rc != 0
 
 - name: "run configure"
   command: "./configure"
   args:
-    chdir: "{{ py_src_dir_path }}"
+    chdir: "/tmp/Python-{{ py_version }}"
   when: command_result.rc != 0
 
 - name: "run make"
   command: "make"
   args:
-    chdir: "{{ py_src_dir_path }}"
+    chdir: "/tmp/Python-{{ py_version }}"
   when: command_result.rc != 0
 
-- name: "run make altinstall"
-  command: "make altinstall"
+- name: "run make install"
+  command: "make install"
   args:
-    chdir: "{{ py_src_dir_path }}"
-  sudo: yes
+    chdir: "/tmp/Python-{{ py_version }}"
   when: command_result.rc != 0
 
 - name: "clean up the source files"
   file:
+    path: "{{ item }}"
     state: absent
   with_items:
-    - "{{ py_src_pkg_path }}"
-    - "{{ py_src_dir_path }}"
-  when: command_result.rc != 0
+    - "/tmp/Python-{{ py_version }}"
+    - "/tmp/Python-{{ py_version }}.tgz"

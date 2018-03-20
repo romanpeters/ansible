@@ -1,0 +1,19 @@
+---
+- name: "Get OS info"
+  command: "cat /etc/*-release | grep PRETTY_NAME"
+  register: motd_name
+
+- name: "Get date info"
+  command: "date"
+  register: motd_date
+
+- name: "Get CPU info"
+  command: "cat /proc/cpuinfo | grep 'model name'"
+  register: motd_cpu
+
+- name: "copy motd"
+  template:
+    src: "templates{{ item }}.j2"
+    dest: "{{ item }}"
+  with_items:
+    - "/etc/motd"

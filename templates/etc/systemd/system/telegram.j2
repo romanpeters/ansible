@@ -1,0 +1,11 @@
+[Unit]
+Description={{ item }}
+After=network.target
+
+[Service]
+Type=simple
+User=telegram
+ExecStart=/srv/telegram/{{ item }}/venv/bin/{{ py_exec }} /srv/telegram/{{ item }}/main.py
+
+[Install]
+WantedBy=multi-user.target

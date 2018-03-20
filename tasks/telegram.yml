@@ -1,0 +1,74 @@
+---
+- name: "install dependencies"
+  package:
+    name: "{{ item }}"
+    state: "latest"
+  with_items:
+    - "python3-matplotlib"
+
+- name: "create bot system group"
+  group:
+    name: "telegram"
+    state: present
+    system: True
+
+- name: "create Telegram system user"
+  user:
+    name: "telegram"
+    group: "telegram"
+    append: False
+    home: "/srv/telegram"
+    comment: "Telegram bot management"
+    shell: "/usr/sbin/nologin"
+    state: present
+    system: True
+
+- name: "clone from GitHub"
+  git:
+    repo: "git@github.com:romanpeters/{{ item }}.git"
+    dest: "/srv/telegram/{{ item }}/"
+    key_file: "/home/{{ new_username }}/.ssh/id_rsa"
+    accept_hostkey: yes
+  with_items:
+    - "rumdmc"
+    - "stickybot"
+    - "ethereumbot"
+    - "meembot3000"
+
+# set owner/permisison
+
+- name: "create environments"
+  pip:
+    requirements: "/srv/telegram/{{ item }}/requirements.txt"
+    virtualenv: "/srv/telegram/{{ item }}/venv"
+    virtualenv_python: "{{ py_exec }}"
+    state: "latest"
+  with_items:
+    - "rumdmc"
+    - "stickybot"
+    - "ethereumbot"
+    - "meembot3000"
+
+- name: "create systemd unit files"
+  template:
+    src: 'templates/etc/systemd/system/bot.j2'
+    dest: 'templates/etc/systemd/system/{{ item }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  with_items:
+    - "rumdmc"
+    - "stickybot"
+    - "ethereumbot"
+    - "meembot3000"
+
+- name: "enable bot as a service"
+  service:
+    name: "{{ item }}"
+    enabled: yes
+  with_items:
+    - "rumdmc"
+    - "stickybot"
+    - "ethereumbot"
+    - "meembot3000"
+

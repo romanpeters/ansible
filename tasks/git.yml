@@ -1,0 +1,17 @@
+---
+- name: "install git"
+  package:
+    name: "{{ item }}"
+    state: "latest"
+  with_items:
+    - "git"
+
+- name: "read SSH public key to authorize"
+  shell: "cat /home/{{ new_username }}/.ssh/id_rsa.pub"
+  register: ssh_pub_key
+
+- name: 'authorize key with GitHub'
+  github_key:
+    name: "{{ new_hostname }}"
+    token: "{{ github_token }}"
+    pubkey: "{{ ssh_pub_key.stdout }}"
