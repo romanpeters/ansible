@@ -18,3 +18,4 @@
     state: "latest"
   with_items:
     - "tmux"
+    - "vim"
