@@ -1,0 +1,7 @@
+---
+- name: Copy docker-compose
+  copy:
+    src: "templates{{ item }}.j2"
+    dest: "{{ item }}"
+  with_items:
+    - /etc/dhcpd.conf

@@ -6,6 +6,9 @@ new_user_full_name: "John Doe"
 new_username: "johndoe"
 new_user_password: "password"
 
+static_ip: 10.10.10.10/24
+static_gateway: 10.10.10.11
+
 wifi_ssid: "mywifinetwork"
 wifi_password: "mypassword"
 
