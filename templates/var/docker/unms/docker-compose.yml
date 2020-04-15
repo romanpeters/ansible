@@ -1,0 +1,14 @@
+version: '2'
+services:
+  unms:
+    image: oznu/unms:armhf
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./config:/config
+    environment:
+      - TZ=Europe/Amsterdam
+      - PUBLIC_HTTPS_PORT=443
+      - PUBLIC_WS_PORT=443
