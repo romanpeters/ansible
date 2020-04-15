@@ -1,6 +1,6 @@
 ---
 - name: "remove pi user"
-- user:
+  user:
     name: pi
     state: absent
     remove: yes
